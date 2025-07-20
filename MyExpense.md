@@ -1,4 +1,4 @@
-# máquinas
+# MyExpense
 
 - **Target Machine - MyExpense**: [https://www.vulnhub.com/entry/myexpense-1,405/](https://www.vulnhub.com/entry/myexpense-1,405/)
 
