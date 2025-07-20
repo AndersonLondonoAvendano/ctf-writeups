@@ -232,5 +232,3 @@ Finally, logged back in as `slamotte` to confirm that the €750 reimbursement w
 ✅ Challenge successfully completed.
 
 ```
-
----
