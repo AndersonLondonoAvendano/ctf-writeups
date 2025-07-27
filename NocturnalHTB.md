@@ -1,4 +1,3 @@
----
 # HTB - Nocturnal
 
 ## Reconnaissance
@@ -163,9 +162,6 @@ A public exploit was found and executed:
 The exploit granted **root** access to the server, successfully completing the CTF challenge.
 
 ![Root access](images/root_access.png)
-
----
-
 - Asegúrate de que todas las imágenes estén correctamente renombradas y almacenadas en la carpeta `images/` dentro del mismo directorio que el `.md`.
 - Si necesitas que genere también un `.pdf` o `.html` a partir del `.md`, puedo ayudarte con el comando de `pandoc` o `typora`.
 
