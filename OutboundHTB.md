@@ -78,7 +78,7 @@ This successful exploitation resulted in a reverse shell connection as the `www-
 
 While exploring the file system as `www-data`, the Roundcube configuration file was discovered:
 
-**File Location**: `/var/www/html/config/config.inc.php`
+**File Location**: `/var/www/html/roundcube/config/config.inc.php`
 
 **Database Credentials Found**:
 ```php
