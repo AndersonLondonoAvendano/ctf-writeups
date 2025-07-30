@@ -209,7 +209,7 @@ The Below binary was identified with the following characteristics:
 - **Permissions**: Executable with sudo privileges
 - **Version**: 0.8.0 (discovered using `sudo /usr/bin/below live`)
 
-![[Pasted image 20250729211106.png]]
+![](images/Pasted%20image%2020250729211106.png)
 
 ### Vulnerability Research
 
@@ -249,13 +249,13 @@ cp /tmp/spyuser /var/log/below/error_root.log
 su spy
 ```
 
-![[Pasted image 20250729215114.png]]
+![](Pasted%20image%2020250729215114.png)
 
 ### Root Access Achieved
 
 This exploitation technique successfully granted root access to the system, completing the privilege escalation chain.
 
-![[Pasted image 20250729215239.png]]
+![](Pasted%20image%2020250729215239.png)
 
 ## Post-Exploitation
 
