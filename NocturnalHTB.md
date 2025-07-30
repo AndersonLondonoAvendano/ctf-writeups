@@ -1,4 +1,7 @@
 # HTB - Nocturnal
+<img width="1400" height="705" alt="image" src="https://github.com/user-attachments/assets/db53df5b-edf3-4d4d-a337-637ccceea298" />
+
+
 
 ## Reconnaissance
 
