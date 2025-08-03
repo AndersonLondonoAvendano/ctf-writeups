@@ -45,7 +45,7 @@ nmap -sS -Pn -n -p- --min-rate 5000 192.168.56.103
 
 **Open Ports Discovered**:
 
-![Port Scan Results](Pasted%20image%2020250802165114.png)
+![Port Scan Results](images/Pasted%20image%2020250802165114.png)
 
 ### Service Enumeration
 
@@ -64,7 +64,7 @@ nmap -sCV -Pn -n -p21,22,80,139,445,3306,11111,22222,33333,44441,44444,55551,555
 - **Port 3306**: MySQL database
 - **Various high ports**: Additional services
 
-![Service Enumeration](Pasted%20image%2020250802165934.png)
+![Service Enumeration](images/Pasted%20image%2020250802165934.png)
 
 The analysis focused primarily on the web services running on ports 80 and 44441.
 
@@ -80,13 +80,13 @@ gobuster dir -w /home/xon/Desktop/xon/SecLists/Fuzzing/fuzz-Bo0oM.txt -u http://
 
 **Interesting directories discovered**:
 
-![Directory Discovery](/Pasted%20image%2020250802170531.png)
+![Directory Discovery](images/Pasted%20image%2020250802170531.png)
 
 ### WordPress Identification
 
 Investigation of the discovered paths revealed a WordPress installation on the blog directory. However, the site was using virtual hosting, causing styling issues.
 
-![WordPress Site Issues](Pasted%20image%2020250802170953.png)
+![WordPress Site Issues](images/Pasted%20image%2020250802170953.png)
 
 **Virtual Host Configuration**: Added `cereal.ctf` to `/etc/hosts` to resolve the virtual hosting issue and properly load the website styling.
 
@@ -102,7 +102,7 @@ gobuster vhost -u http://cereal.ctf:44441/ -w /home/xon/Desktop/xon/SecLists/Dis
 
 After adding the subdomain to `/etc/hosts`, accessing the subdomain revealed a ping utility interface:
 
-![Secure Subdomain Interface](Pasted%20image%2020250802173741.png)
+![Secure Subdomain Interface](images/Pasted%20image%2020250802173741.png)
 
 ## Vulnerability Analysis
 
@@ -116,11 +116,11 @@ The web application appeared to provide a ping utility. To verify its functional
 tcpdump -i enp0s8 icmp -n
 ```
 
-![Network Monitoring](Pasted%20image%2020250802174317.png)
+![Network Monitoring](images/Pasted%20image%2020250802174317.png)
 
 **Ping Test from Web Interface**:
 
-![Web Ping Test](Pasted%20image%2020250802174258.png)
+![Web Ping Test](images/Pasted%20image%2020250802174258.png)
 
 ### HTTP Request Analysis
 
@@ -166,13 +166,13 @@ gobuster dir -w /home/xon/Desktop/xon/SecLists/Discovery/Web-Content/directory-l
 
 **Critical Discovery**: `http://secure.cereal.ctf:44441/back_en/index.php.bak`
 
-![Backup File Discovery](Pasted%20image%2020250802181638.png)
+![Backup File Discovery](images/Pasted%20image%2020250802181638.png)
 
 ### Source Code Analysis
 
 The backup file contained the complete source code of the application, revealing the deserialization vulnerability:
 
-![Source Code Analysis](Pasted%20image%2020250802182515.png)
+![Source Code Analysis](images/Pasted%20image%2020250802182515.png)
 
 **Code Structure Analysis**:
 
@@ -190,7 +190,7 @@ The backup file contained the complete source code of the application, revealing
 
 The vulnerability can be exploited by crafting a malicious serialized object that bypasses the validation checks:
 
-![Payload Development](Pasted%20image%2020250802183526.png)
+![Payload Development](images/Pasted%20image%2020250802183526.png)
 
 **Exploit Strategy**:
 
@@ -246,7 +246,7 @@ nc -nlvp 443
 
 **Successful Exploitation**:
 
-![Reverse Shell Success](Pasted%20image%2020250802184513.png)
+![Reverse Shell Success](images/Pasted%20image%2020250802184513.png)
 
 The exploit successfully bypassed the validation mechanisms and established a reverse shell connection, demonstrating complete remote code execution.
 
