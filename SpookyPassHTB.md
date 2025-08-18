@@ -21,7 +21,7 @@ The challenge provided a ZIP archive containing an executable file named `pass`:
 
 Running the executable revealed a password authentication prompt:
 
-![Password Authentication](images/Captura%20de%20pantalla%2020250817230418.png)
+![Password Authentication](images/Captura%20de%20pantalla%202025-08-17%20230416.png)
 
 The program displays a themed message about a "SPOOKIEST party" and requests a password for authentication.
 
