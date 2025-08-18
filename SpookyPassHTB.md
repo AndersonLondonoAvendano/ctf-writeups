@@ -15,13 +15,13 @@ This writeup documents the solution to an HTB reverse engineering challenge invo
 
 The challenge provided a ZIP archive containing an executable file named `pass`:
 
-![Challenge Files](images/Captura%20de%20Pantalla%2020250817230101.png)
+![Challenge Files](images/Captura%20de%20pantalla%202025-08-17%20230058.png)
 
 ### Initial Execution
 
 Running the executable revealed a password authentication prompt:
 
-![Password Authentication](images/Pasted%20image%2020250817230418.png)
+![Password Authentication](images/Captura%20de%20pantalla%2020250817230418.png)
 
 The program displays a themed message about a "SPOOKIEST party" and requests a password for authentication.
 
