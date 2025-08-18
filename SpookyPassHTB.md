@@ -58,7 +58,7 @@ You're not a real ghost; clear off!
 
 Using the discovered password, authentication was bypassed and the flag was revealed:
 
-![Flag Revealed](images/Pasted%20image%2020250817230853.png)
+![Flag Revealed](images/Captura%20de%20pantalla%202025-08-17%20230850.png)
 
 ## Technical Analysis
 
