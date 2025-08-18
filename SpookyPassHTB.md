@@ -15,7 +15,7 @@ This writeup documents the solution to an HTB reverse engineering challenge invo
 
 The challenge provided a ZIP archive containing an executable file named `pass`:
 
-![Challenge Files](images/Pasted%20image%2020250817230101.png)
+![Challenge Files](images/Captura%20de%20Pantalla%2020250817230101.png)
 
 ### Initial Execution
 
