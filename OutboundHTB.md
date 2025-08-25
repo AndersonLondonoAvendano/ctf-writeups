@@ -1,6 +1,6 @@
 # HTB - Outbound
 
-<img width="1400" height="705" alt="image" src="https://github.com/user-attachments/assets/ba8e8c36-4886-4f93-974e-96e16afea76d" />
+<img width="500" height="413" alt="image" src="https://github.com/user-attachments/assets/ba8e8c36-4886-4f93-974e-96e16afea76d" />
 
 
 ## Machine Information
