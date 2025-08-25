@@ -1,5 +1,7 @@
 # HTB Planning Machine Writeup
 
+<img width="500" height="413" alt="image" src="https://github.com/user-attachments/assets/c0d4f5d0-a2a7-4581-9448-14b262d57ab6" />
+
 ## Machine Information
 
 - **Target IP**: 10.10.11.68
