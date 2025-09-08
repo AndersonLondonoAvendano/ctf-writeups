@@ -1,5 +1,5 @@
 # HTB 2Million Machine Writeup
-<img width="1200" height="909" alt="image" src="https://github.com/user-attachments/assets/dc8c465b-65f4-40f7-8b51-8648ec2557b2" />
+<img width="480" height="413" alt="image" src="https://github.com/user-attachments/assets/dc8c465b-65f4-40f7-8b51-8648ec2557b2" />
 
 ## Machine Information
 
