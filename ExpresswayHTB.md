@@ -1,3 +1,5 @@
+# Expressway HTB
+
 <img width="480" height="274" alt="image" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQIPptMtdZUVw_OhcFwrK-NhD3JRyPVeVyvRA&s" />
 
 ## Machine information
@@ -30,8 +32,7 @@ sudo nmap -sS --open -p- -n -Pn 10.10.11.87 ./nmap/scanports
 ```
 
 Open ports (screenshot):
-
-![[images/Pasted image 20251018131858.png]]
+![a](images/Pasted%20image%2020251018131858.png)
 
 ### Version/service probe on SSH
 
@@ -42,8 +43,7 @@ sudo nmap -sCV -p 22 -n -Pn 10.10.11.87 -oN ./nmap/vulnport
 ```
 
 Output (screenshot):
-
-![[images/Pasted image 20251018133812.png]]
+![](images/Pasted%20image%2020251018133812.png)
 
 Observation: No obvious remote application vulnerabilities on the scanned TCP ports; further enumeration focused on UDP services.
 
@@ -57,7 +57,7 @@ sudo nmap -sUCV -p- --open -n -Pn 10.10.11.87
 
 Output (screenshot):
 
-![[images/Pasted image 20251018140100.png]]
+![](images/Pasted%20image%2020251018140100.png)
 
 Result: UDP/500 (ISAKMP/IKE) is open.
 
@@ -77,8 +77,8 @@ sudo ike-scan -P -A -M 10.10.11.87
 
 Result (screenshot):
 
-![[images/Pasted image 20251018142403.png]]
 
+![](images/Pasted%20image%2020251018142403.png)
 Important observations from the `ike-scan` output:
 
 - IKE responded in **Aggressive Mode**.
@@ -108,7 +108,8 @@ ike-scan -M --pskcrack=/usr/share/wordlists/rockyou.txt 10.10.11.87
 
 Result: The PSK was recovered in cleartext (screenshot):
 
-![[images/Pasted image 20251018143342.png]]
+
+![](images/Pasted%20image%2020251018143342.png)
 
 The recovered key was then used as a password for SSH authentication of the discovered identity.
 
@@ -127,11 +128,12 @@ ssh ike@10.10.11.87
 
 Login success (screenshot):
 
-![[images/Pasted image 20251018143649.png]]
+![](images/Pasted%20image%2020251018143649.png)
 
 Result: User `ike` shell obtained. The user flag was located on the desktop (screenshot):
 
-![[images/Pasted image 20251018143758.png]]
+
+![](images/Pasted%20image%2020251018143758.png)
 
 ---
 
@@ -147,7 +149,8 @@ sudo -V
 
 Output (screenshot):
 
-![[images/Pasted image 20251018144354.png]]
+
+![](images/Pasted%20image%2020251018144354.png)
 
 Finding: `sudo` version 1.9.17, which is vulnerable to CVE-2025-32463. The vulnerability allows a local user to influence `sudo`’s chroot behavior so that `sudo -R` may load user-controlled `/etc/nsswitch.conf` and an attacker-controlled NSS shared library, resulting in arbitrary code execution as root.
 
@@ -197,7 +200,8 @@ rm -rf "$STAGE"
 
 Execution of the PoC on the target yielded a root shell and the root flag (screenshot):
 
-![[images/Pasted image 20251018145137.png]]
+
+![](images/Pasted%20image%2020251018145137.png)
 
 ---
 
