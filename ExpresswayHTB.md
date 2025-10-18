@@ -231,4 +231,3 @@ Execution of the PoC on the target yielded a root shell and the root flag (scree
 
 The compromise path combined a network-protocol weakness (IKE Aggressive Mode with a weak PSK) and an unpatched local privilege-escalation vulnerability in `sudo`. The result was a full compromise of the target. Immediate actions: patch `sudo`, disable Aggressive Mode, enforce stronger authentication, and review VPN and SSH access controls.
 
-
