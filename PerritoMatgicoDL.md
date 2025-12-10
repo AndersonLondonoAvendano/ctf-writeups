@@ -8,7 +8,7 @@
 - **Machine Name**: Perrito Mágico
 - **Target IP**: 172.17.0.2
 - **Operating System**: Linux
-- **Difficulty**: Easy
+- **Difficulty**: Medium
 - **Attack Vector**: API File Upload + Sudo Nano Exploitation
 
 ## Executive Summary
