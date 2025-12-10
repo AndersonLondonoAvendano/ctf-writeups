@@ -1,5 +1,7 @@
 # HTB MonitorsFour Machine Writeup
 
+<img width="480" height="274" alt="image" src="https://i0.wp.com/thecybersecguru.com/wp-content/uploads/2025/12/image-41.png?w=676&ssl=1" />
+
 ## Machine Information
 
 - **Target IP**: 10.10.11.98
