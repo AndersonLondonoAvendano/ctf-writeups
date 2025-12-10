@@ -1,5 +1,7 @@
 # DockerLabs Perrito Mágico Writeup
 
+<img width="480" height="274" alt="image" src="https://dockerlabs.es/static/images/logos/Perrito_Magico.jpeg" />
+
 ## Machine Information
 
 - **Platform**: DockerLabs
